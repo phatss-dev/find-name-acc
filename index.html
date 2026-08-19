@@ -14,6 +14,7 @@
             --accent: #38bdf8;
             --accent-hover: #0284c7;
             --btn-copy: #10b981;
+            --danger: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -34,7 +35,7 @@
             border-radius: 12px;
             padding: 20px;
         }
-        .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text); }
         textarea {
             width: 100%;
             height: 130px;
@@ -48,20 +49,71 @@
             resize: vertical;
         }
         textarea:focus { outline: none; border-color: var(--accent); }
-        .upload-options { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-        .file-label {
-            background: #334155;
-            padding: 8px 16px;
-            border-radius: 6px;
+        
+        /* Vùng kéo thả */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #0b1120;
             cursor: pointer;
-            font-size: 13px;
             transition: 0.2s;
         }
-        .file-label:hover { background: #475569; }
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+        .drop-zone p { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
+        .btn-select {
+            background: #334155;
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .btn-select:hover { background: #475569; }
         input[type="file"] { display: none; }
-        .file-status { font-size: 13px; color: var(--text-muted); }
+
+        /* Danh sách file */
+        .file-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            font-size: 13px;
+        }
+        .file-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .chip {
+            background: #334155;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--accent);
+        }
+        .btn-clear {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-clear:hover { background: var(--danger); color: white; }
+
         .actions { display: flex; gap: 12px; }
-        button {
+        button.main-btn {
             flex: 1;
             padding: 12px;
             font-size: 15px;
@@ -75,6 +127,7 @@
         .btn-run:hover { background: var(--accent-hover); }
         .btn-copy { background: var(--btn-copy); color: white; flex: 0 0 140px; }
         .btn-copy:hover { opacity: 0.9; }
+        
         pre {
             background: #0b1120;
             border: 1px solid var(--border);
@@ -85,7 +138,7 @@
             font-size: 13px;
             white-space: pre-wrap;
             min-height: 140px;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
         }
     </style>
@@ -98,35 +151,37 @@
         <p>Tìm kiếm vị trí account trong các file txt cực nhanh</p>
     </div>
 
-    <!-- Bước 1: Nhập danh sách acc -->
+    <!-- Bước 1 -->
     <div class="card">
         <h2>1. Nhập danh sách acc cần tìm (nội dung find.txt)</h2>
         <textarea id="findInput" placeholder="clone1:mật khẩu:cookie&#10;clone2:pass&#10;clone3/mật khẩu"></textarea>
     </div>
 
-    <!-- Bước 2: Tải các file cần quét -->
+    <!-- Bước 2 -->
     <div class="card">
-        <h2>2. Chọn file hoặc thư mục cần quét (acc cần find)</h2>
-        <div class="upload-options">
-            <label class="file-label">
-                📂 Chọn cả thư mục
-                <input type="file" id="folderInput" webkitdirectory directory multiple>
-            </label>
-            <label class="file-label">
-                📄 Chọn nhiều file .txt
-                <input type="file" id="filesInput" multiple accept=".txt">
+        <h2>2. Nạp các file TXT cần quét</h2>
+        <div class="drop-zone" id="dropZone">
+            <p>Kéo thả trực tiếp nhiều file hoặc folder vào đây</p>
+            <label class="btn-select">
+                📂 Chọn nhiều file từ máy tính
+                <input type="file" id="filesInput" multiple>
             </label>
         </div>
-        <div class="file-status" id="fileCount">Chưa có file nào được nạp.</div>
+
+        <div class="file-status-bar">
+            <span id="fileCountText">Đã nạp: 0 file</span>
+            <button class="btn-clear" id="btnClear" onclick="clearFiles()" style="display: none;">Xóa tất cả file</button>
+        </div>
+        <div class="file-chips" id="fileChips"></div>
     </div>
 
-    <!-- Nút chạy -->
+    <!-- Nút xử lý -->
     <div class="actions">
-        <button class="btn-run" onclick="processSearch()">🚀 Bắt Đầu Lọc</button>
-        <button class="btn-copy" onclick="copyResult()">📋 Copy Kết Quả</button>
+        <button class="main-btn btn-run" onclick="processSearch()">🚀 Bắt Đầu Lọc</button>
+        <button class="main-btn btn-copy" onclick="copyResult()">📋 Copy Kết Quả</button>
     </div>
 
-    <!-- Bước 3: Kết quả -->
+    <!-- Bước 3 -->
     <div class="card">
         <h2>3. Kết quả tìm kiếm</h2>
         <pre id="outputResult">Kết quả sẽ xuất hiện ở đây sau khi bấm nút Lọc...</pre>
@@ -134,16 +189,66 @@
 </div>
 
 <script>
-    let selectedFiles = [];
+    // Lưu trữ file dưới dạng Map để tránh trùng tên file khi chọn nhiều đợt
+    const fileMap = new Map();
 
-    // Lắng nghe sự kiện chọn file/folder
-    document.getElementById('folderInput').addEventListener('change', (e) => handleFiles(e.target.files));
-    document.getElementById('filesInput').addEventListener('change', (e) => handleFiles(e.target.files));
+    const dropZone = document.getElementById('dropZone');
+    const filesInput = document.getElementById('filesInput');
+    const fileCountText = document.getElementById('fileCountText');
+    const fileChips = document.getElementById('fileChips');
+    const btnClear = document.getElementById('btnClear');
 
-    function handleFiles(files) {
-        // Chỉ lấy các file .txt hoặc file không có đuôi thư mục
-        selectedFiles = Array.from(files).filter(f => f.name.endsWith('.txt') || !f.name.includes('.'));
-        document.getElementById('fileCount').textContent = `Đã nạp ${selectedFiles.length} file sẵn sàng quét.`;
+    // Xử lý kéo thả Drag & Drop
+    ['dragenter', 'dragover'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        addFilesToList(files);
+    });
+
+    filesInput.addEventListener('change', (e) => {
+        addFilesToList(e.target.files);
+        // Reset input để có thể chọn tiếp cùng 1 file nếu muốn
+        filesInput.value = '';
+    });
+
+    function addFilesToList(files) {
+        for (const file of files) {
+            // Lấy tất cả các file (ưu tiên .txt hoặc file dữ liệu văn bản)
+            fileMap.set(file.name, file);
+        }
+        updateUI();
+    }
+
+    function clearFiles() {
+        fileMap.clear();
+        updateUI();
+    }
+
+    function updateUI() {
+        const count = fileMap.size;
+        fileCountText.textContent = `Đã nạp: ${count} file`;
+        btnClear.style.display = count > 0 ? 'inline-block' : 'none';
+        
+        fileChips.innerHTML = '';
+        fileMap.forEach((_, name) => {
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.textContent = name;
+            fileChips.appendChild(chip);
+        });
     }
 
     function extractUsername(line) {
@@ -161,12 +266,11 @@
             alert("Vui lòng dán danh sách account cần tìm!");
             return;
         }
-        if (selectedFiles.length === 0) {
-            alert("Vui lòng chọn ít nhất 1 file hoặc 1 thư mục chứa file txt!");
+        if (fileMap.size === 0) {
+            alert("Vui lòng chọn ít nhất 1 file .txt!");
             return;
         }
 
-        // Tách lấy danh sách username duy nhất
         const targetAccounts = [...new Set(
             rawInput.split("\n")
                 .map(extractUsername)
@@ -176,24 +280,23 @@
         const fileToAccounts = {};
         const foundAccounts = new Set();
 
-        // Đọc từng file
-        for (const file of selectedFiles) {
+        // Quét từng file trong Map
+        for (const [filename, file] of fileMap.entries()) {
             const content = await file.text();
             
             targetAccounts.forEach(acc => {
-                // Regex chuẩn: khớp đầu dòng/ký tự xuống dòng, theo sau là delimiter hoặc khoảng trắng
                 const escaped = acc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const regex = new RegExp(`(^|[\\r\\n])${escaped}(?=[:/|\\s]|$)`, 'i');
                 
                 if (regex.test(content)) {
-                    if (!fileToAccounts[file.name]) fileToAccounts[file.name] = [];
-                    fileToAccounts[file.name].push(acc);
+                    if (!fileToAccounts[filename]) fileToAccounts[filename] = [];
+                    fileToAccounts[filename].push(acc);
                     foundAccounts.add(acc);
                 }
             });
         }
 
-        // Format kết quả in ra
+        // Format kết quả
         let resultText = "--- KẾT QUẢ TÌM KIẾM ---\n\n";
         const fileNames = Object.keys(fileToAccounts);
 
@@ -212,7 +315,7 @@
                 }
             });
         } else {
-            resultText += "Không tìm thấy tài khoản nào khớp trong các file.\n";
+            resultText += "Không tìm thấy tài khoản nào khớp trong các file đã chọn.\n";
         }
 
         const missing = targetAccounts.filter(acc => !foundAccounts.has(acc));
@@ -227,7 +330,7 @@
     function copyResult() {
         const text = document.getElementById("outputResult").textContent;
         navigator.clipboard.writeText(text).then(() => {
-            alert("Đã sao chép kết quả!");
+            alert("Đã sao chép kết quả vào bộ nhớ tạm!");
         });
     }
 </script>
