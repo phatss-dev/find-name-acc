@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Lọc Tài Khoản TXT</title>
+    <title>Tool Lọc Dữ Liệu Acc TXT</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -50,7 +50,6 @@
         }
         textarea:focus { outline: none; border-color: var(--accent); }
         
-        /* Vùng kéo thả */
         .drop-zone {
             border: 2px dashed var(--border);
             border-radius: 8px;
@@ -77,7 +76,6 @@
         .btn-select:hover { background: #475569; }
         input[type="file"] { display: none; }
 
-        /* Danh sách file */
         .file-status-bar {
             display: flex;
             justify-content: space-between;
@@ -138,7 +136,7 @@
             font-size: 13px;
             white-space: pre-wrap;
             min-height: 140px;
-            max-height: 450px;
+            max-height: 500px;
             overflow-y: auto;
         }
     </style>
@@ -147,23 +145,23 @@
 
 <div class="container">
     <div class="header">
-        <h1>Account File Finder</h1>
-        <p>Tìm kiếm vị trí account trong các file txt cực nhanh</p>
+        <h1>Account Data Finder</h1>
+        <p>Lọc trích xuất đầy đủ định dạng (User:Pass:Cookie) theo danh sách tài khoản</p>
     </div>
 
     <!-- Bước 1 -->
     <div class="card">
-        <h2>1. Nhập danh sách acc cần tìm (nội dung find.txt)</h2>
-        <textarea id="findInput" placeholder="clone1:mật khẩu:cookie&#10;clone2:pass&#10;clone3/mật khẩu"></textarea>
+        <h2>1. Nhập danh sách acc cần tìm</h2>
+        <textarea id="findInput" placeholder="clone1&#10;clone2:pass_cu:cookie_cu&#10;clone3"></textarea>
     </div>
 
     <!-- Bước 2 -->
     <div class="card">
         <h2>2. Nạp các file TXT cần quét</h2>
         <div class="drop-zone" id="dropZone">
-            <p>Kéo thả trực tiếp nhiều file hoặc folder vào đây</p>
+            <p>Kéo thả trực tiếp nhiều file vào đây</p>
             <label class="btn-select">
-                📂 Chọn nhiều file từ máy tính
+                📂 Chọn các file TXT
                 <input type="file" id="filesInput" multiple>
             </label>
         </div>
@@ -175,7 +173,7 @@
         <div class="file-chips" id="fileChips"></div>
     </div>
 
-    <!-- Nút xử lý -->
+    <!-- Nút thao tác -->
     <div class="actions">
         <button class="main-btn btn-run" onclick="processSearch()">🚀 Bắt Đầu Lọc</button>
         <button class="main-btn btn-copy" onclick="copyResult()">📋 Copy Kết Quả</button>
@@ -183,22 +181,20 @@
 
     <!-- Bước 3 -->
     <div class="card">
-        <h2>3. Kết quả tìm kiếm</h2>
+        <h2>3. Kết quả chi tiết</h2>
         <pre id="outputResult">Kết quả sẽ xuất hiện ở đây sau khi bấm nút Lọc...</pre>
     </div>
 </div>
 
 <script>
-    // Lưu trữ file dưới dạng Map để tránh trùng tên file khi chọn nhiều đợt
     const fileMap = new Map();
-
     const dropZone = document.getElementById('dropZone');
     const filesInput = document.getElementById('filesInput');
     const fileCountText = document.getElementById('fileCountText');
     const fileChips = document.getElementById('fileChips');
     const btnClear = document.getElementById('btnClear');
 
-    // Xử lý kéo thả Drag & Drop
+    // Drag & drop handlers
     ['dragenter', 'dragover'].forEach(name => {
         dropZone.addEventListener(name, (e) => {
             e.preventDefault();
@@ -214,19 +210,16 @@
     });
 
     dropZone.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files;
-        addFilesToList(files);
+        addFilesToList(e.dataTransfer.files);
     });
 
     filesInput.addEventListener('change', (e) => {
         addFilesToList(e.target.files);
-        // Reset input để có thể chọn tiếp cùng 1 file nếu muốn
         filesInput.value = '';
     });
 
     function addFilesToList(files) {
         for (const file of files) {
-            // Lấy tất cả các file (ưu tiên .txt hoặc file dữ liệu văn bản)
             fileMap.set(file.name, file);
         }
         updateUI();
@@ -267,60 +260,64 @@
             return;
         }
         if (fileMap.size === 0) {
-            alert("Vui lòng chọn ít nhất 1 file .txt!");
+            alert("Vui lòng nạp ít nhất 1 file dữ liệu!");
             return;
         }
 
+        // Tách lấy danh sách username duy nhất (chỉ lấy phần tên acc)
         const targetAccounts = [...new Set(
             rawInput.split("\n")
                 .map(extractUsername)
                 .filter(Boolean)
         )];
 
-        const fileToAccounts = {};
+        // Map lưu: { "tên_file.txt": ["clone1:pass1:cookie1", "clone2:pass2:cookie2"] }
+        const fileToLines = {};
         const foundAccounts = new Set();
 
-        // Quét từng file trong Map
+        // Duyệt từng file
         for (const [filename, file] of fileMap.entries()) {
-            const content = await file.text();
-            
-            targetAccounts.forEach(acc => {
-                const escaped = acc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(`(^|[\\r\\n])${escaped}(?=[:/|\\s]|$)`, 'i');
+            const text = await file.text();
+            const lines = text.split(/\r?\n/);
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
+
+                const lineUser = extractUsername(trimmedLine);
+                if (!lineUser) return;
+
+                // Kiểm tra tên acc trong dòng có nằm trong danh sách cần tìm không (không phân biệt hoa thường)
+                const isMatch = targetAccounts.some(target => target.toLowerCase() === lineUser.toLowerCase());
                 
-                if (regex.test(content)) {
-                    if (!fileToAccounts[filename]) fileToAccounts[filename] = [];
-                    fileToAccounts[filename].push(acc);
-                    foundAccounts.add(acc);
+                if (isMatch) {
+                    if (!fileToLines[filename]) fileToLines[filename] = [];
+                    fileToLines[filename].push(trimmedLine);
+                    foundAccounts.add(lineUser.toLowerCase());
                 }
             });
         }
 
-        // Format kết quả
-        let resultText = "--- KẾT QUẢ TÌM KIẾM ---\n\n";
-        const fileNames = Object.keys(fileToAccounts);
+        // Tạo nội dung hiển thị
+        let resultText = "--- KẾT QUẢ TÌM KIẾM (TRÍCH XUẤT ĐẦY ĐỦ DATA) ---\n\n";
+        const fileNames = Object.keys(fileToLines);
 
         if (fileNames.length > 0) {
             fileNames.forEach(filename => {
-                const accs = fileToAccounts[filename];
-                if (accs.length === 1) {
-                    resultText += `${filename} có ${accs[0]}\n`;
-                } else {
-                    const indent = " ".repeat(filename.length + 4);
-                    resultText += `${filename} có ${accs[0]},\n`;
-                    for (let i = 1; i < accs.length - 1; i++) {
-                        resultText += `${indent}${accs[i]},\n`;
-                    }
-                    resultText += `${indent}${accs[accs.length - 1]}\n`;
-                }
+                const lines = fileToLines[filename];
+                resultText += `[+] File: ${filename} (Tìm thấy ${lines.length} acc)\n`;
+                lines.forEach(item => {
+                    resultText += `    ${item}\n`;
+                });
+                resultText += `\n`;
             });
         } else {
-            resultText += "Không tìm thấy tài khoản nào khớp trong các file đã chọn.\n";
+            resultText += "Không tìm thấy tài khoản nào khớp trong các file đã nạp.\n";
         }
 
-        const missing = targetAccounts.filter(acc => !foundAccounts.has(acc));
+        const missing = targetAccounts.filter(acc => !foundAccounts.has(acc.toLowerCase()));
         if (missing.length > 0) {
-            resultText += "\n--- KHÔNG TÌM THẤY TRONG FILE NÀO ---\n";
+            resultText += "--- KHÔNG TÌM THẤY TRONG FILE NÀO ---\n";
             missing.forEach(acc => resultText += `- ${acc}\n`);
         }
 
@@ -330,7 +327,7 @@
     function copyResult() {
         const text = document.getElementById("outputResult").textContent;
         navigator.clipboard.writeText(text).then(() => {
-            alert("Đã sao chép kết quả vào bộ nhớ tạm!");
+            alert("Đã sao chép toàn bộ kết quả vào bộ nhớ tạm!");
         });
     }
 </script>
