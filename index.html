@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Lọc & Trích Xuất Dữ Liệu Acc TXT</title>
+    <title>Tool Lọc Dữ Liệu Acc TXT</title>
     <style>
         :root {
             --bg: #0b1120;
@@ -27,8 +27,8 @@
             display: flex;
             justify-content: center;
         }
-        .container { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 20px; }
-        .header { text-align: center; margin-bottom: 4px; }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
+        .header { text-align: center; }
         .header h1 { font-size: 24px; color: var(--accent); }
         .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
         
@@ -41,7 +41,7 @@
         .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text); }
         textarea {
             width: 100%;
-            height: 120px;
+            height: 130px;
             background: var(--card-inner);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -123,52 +123,30 @@
         }
         .btn-run:hover { background: var(--accent-hover); }
 
-        /* Vùng kết quả dạng ô Box */
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        @media (min-width: 768px) {
-            .result-grid { grid-template-columns: 1fr 1fr; }
-        }
-        .box-result {
-            background: var(--card-inner);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .box-header {
+        .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 12px;
         }
-        .box-title { font-size: 13px; font-weight: 600; color: var(--accent); }
-        .btn-copy-fast {
+        .btn-copy-main {
             background: var(--btn-copy);
             color: white;
             border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
             transition: 0.15s;
         }
-        .btn-copy-fast:hover { background: var(--btn-copy-hover); }
+        .btn-copy-main:hover { background: var(--btn-copy-hover); }
 
-        .missing-box {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px dashed var(--danger);
-            padding: 12px;
-            border-radius: 8px;
+        #outputResult {
+            height: 320px;
             font-size: 13px;
-            color: #fca5a5;
-            font-family: monospace;
-            margin-top: 14px;
+            line-height: 1.5;
+            color: #38df8b;
         }
 
         #toast {
@@ -201,23 +179,23 @@
 
 <div class="container">
     <div class="header">
-        <h1>Account Fast Extractor</h1>
-        <p>Lọc và xuất sẵn các khung văn bản để copy 1-click tức thì</p>
+        <h1>Account Data Fast Finder</h1>
+        <p>Lọc và gom toàn bộ File + TK + MK + Cookie vào 1 khung duy nhất</p>
     </div>
 
-    <!-- Bước 1: Nhập danh sách acc -->
+    <!-- Bước 1 -->
     <div class="card">
         <h2>1. Nhập danh sách acc cần tìm</h2>
         <textarea id="findInput" placeholder="clone1&#10;clone2:pass:cookie&#10;clone3/mật khẩu"></textarea>
     </div>
 
-    <!-- Bước 2: Nạp file -->
+    <!-- Bước 2 -->
     <div class="card">
         <h2>2. Nạp các file TXT cần quét</h2>
         <div class="drop-zone" id="dropZone">
             <p>Kéo thả trực tiếp nhiều file vào đây</p>
             <label class="btn-select">
-                📂 Chọn nhiều file TXT
+                📂 Chọn các file TXT
                 <input type="file" id="filesInput" multiple>
             </label>
         </div>
@@ -229,64 +207,19 @@
         <div class="file-chips" id="fileChips"></div>
     </div>
 
-    <button class="btn-run" onclick="processSearch()">🚀 BẮT ĐẦU LỌC TẤT CẢ</button>
+    <button class="btn-run" onclick="processSearch()">🚀 LỌC DỮ LIỆU</button>
 
-    <!-- Bước 3: Các ô dữ liệu xuất ra -->
+    <!-- Bước 3 -->
     <div class="card" id="resultCard" style="display: none;">
-        <h2>3. Kết quả dữ liệu (Bấm nút xanh để Copy)</h2>
-        
-        <div class="result-grid">
-            <!-- Box 1: Full data -->
-            <div class="box-result" style="grid-column: 1 / -1;">
-                <div class="box-header">
-                    <span class="box-title">📋 FULL DỮ LIỆU GỐC (<span id="countFull">0</span> acc)</span>
-                    <button class="btn-copy-fast" onclick="copyBox('outFull')">⚡ COPY TOÀN BỘ FULL</button>
-                </div>
-                <textarea id="outFull" readonly placeholder="User:Pass:Cookie..."></textarea>
-            </div>
-
-            <!-- Box 2: Chỉ lấy Cookie -->
-            <div class="box-result">
-                <div class="box-header">
-                    <span class="box-title">🍪 CHỈ LẤY COOKIE (<span id="countCookie">0</span> dòng)</span>
-                    <button class="btn-copy-fast" onclick="copyBox('outCookie')">⚡ COPY ALL COOKIE</button>
-                </div>
-                <textarea id="outCookie" readonly placeholder="Danh sách Cookie..."></textarea>
-            </div>
-
-            <!-- Box 3: Vị trí File của Acc -->
-            <div class="box-result">
-                <div class="box-header">
-                    <span class="box-title">📂 VỊ TRÍ ACC THEO FILE</span>
-                    <button class="btn-copy-fast" onclick="copyBox('outFileLoc')">⚡ COPY VỊ TRÍ FILE</button>
-                </div>
-                <textarea id="outFileLoc" readonly placeholder="file_name.txt có clone1..."></textarea>
-            </div>
-
-            <!-- Box 4: Chỉ lấy User -->
-            <div class="box-result">
-                <div class="box-header">
-                    <span class="box-title">👤 CHỈ LẤY TÊN USER (<span id="countUser">0</span> acc)</span>
-                    <button class="btn-copy-fast" onclick="copyBox('outUser')">⚡ COPY ALL USER</button>
-                </div>
-                <textarea id="outUser" readonly placeholder="Danh sách Username..."></textarea>
-            </div>
-
-            <!-- Box 5: Chỉ lấy Pass -->
-            <div class="box-result">
-                <div class="box-header">
-                    <span class="box-title">🔑 CHỈ LẤY MẬT KHẨU (<span id="countPass">0</span> pass)</span>
-                    <button class="btn-copy-fast" onclick="copyBox('outPass')">⚡ COPY ALL PASS</button>
-                </div>
-                <textarea id="outPass" readonly placeholder="Danh sách Mật khẩu..."></textarea>
-            </div>
+        <div class="result-header">
+            <h2>3. Kết quả tổng hợp</h2>
+            <button class="btn-copy-main" onclick="copyAllResult()">⚡ SAO CHÉP TOÀN BỘ (1-CLICK)</button>
         </div>
-
-        <div id="missingContainer"></div>
+        <textarea id="outputResult" readonly placeholder="Kết quả hiển thị tại đây..."></textarea>
     </div>
 </div>
 
-<div id="toast">Đã sao chép!</div>
+<div id="toast">Đã copy toàn bộ kết quả!</div>
 
 <script>
     const fileMap = new Map();
@@ -346,28 +279,17 @@
         });
     }
 
-    function parseAccountLine(line) {
+    function extractUsername(line) {
         line = line.trim();
         if (!line) return null;
-        
-        let delimiter = ':';
-        if (line.includes(':')) delimiter = ':';
-        else if (line.includes('|')) delimiter = '|';
-        else if (line.includes('/')) delimiter = '/';
-
-        const parts = line.split(delimiter);
-        return {
-            user: parts[0] ? parts[0].trim() : '',
-            pass: parts[1] ? parts[1].trim() : '',
-            cookie: parts.slice(2).join(delimiter).trim(),
-            full: line
-        };
+        const parts = line.split(/[:/|]/);
+        return parts[0].trim();
     }
 
     async function processSearch() {
         const rawInput = document.getElementById("findInput").value;
         const resultCard = document.getElementById("resultCard");
-        const missingContainer = document.getElementById("missingContainer");
+        const outputEl = document.getElementById("outputResult");
 
         if (!rawInput.trim()) {
             alert("Vui lòng dán danh sách account cần tìm!");
@@ -380,85 +302,72 @@
 
         const targetAccounts = [...new Set(
             rawInput.split("\n")
-                .map(line => {
-                    const parsed = parseAccountLine(line);
-                    return parsed ? parsed.user : null;
-                })
+                .map(extractUsername)
                 .filter(Boolean)
         )];
 
-        const fullList = [];
-        const userList = [];
-        const passList = [];
-        const cookieList = [];
-        const fileLocLines = [];
+        const fileToLines = {};
         const foundUserSet = new Set();
 
-        // Quét từng file
+        // Quét dữ liệu từng file
         for (const [filename, file] of fileMap.entries()) {
             const text = await file.text();
             const lines = text.split(/\r?\n/);
-            const currentFileAccs = [];
 
             lines.forEach(line => {
-                const parsed = parseAccountLine(line);
-                if (!parsed || !parsed.user) return;
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
 
-                const match = targetAccounts.find(t => t.toLowerCase() === parsed.user.toLowerCase());
+                const lineUser = extractUsername(trimmedLine);
+                if (!lineUser) return;
+
+                const match = targetAccounts.find(t => t.toLowerCase() === lineUser.toLowerCase());
                 if (match) {
-                    fullList.push(parsed.full);
-                    userList.push(parsed.user);
-                    if (parsed.pass) passList.push(parsed.pass);
-                    if (parsed.cookie) cookieList.push(parsed.cookie);
-                    
-                    currentFileAccs.push(parsed.user);
+                    if (!fileToLines[filename]) fileToLines[filename] = [];
+                    fileToLines[filename].push(trimmedLine);
                     foundUserSet.add(match.toLowerCase());
                 }
             });
-
-            if (currentFileAccs.length > 0) {
-                fileLocLines.push(`${filename} có ${currentFileAccs.join(', ')}`);
-            }
         }
 
-        // Đổ dữ liệu vào các ô Textarea
-        document.getElementById('outFull').value = fullList.join('\n');
-        document.getElementById('outUser').value = userList.join('\n');
-        document.getElementById('outPass').value = passList.join('\n');
-        document.getElementById('outCookie').value = cookieList.join('\n');
-        document.getElementById('outFileLoc').value = fileLocLines.join('\n');
+        // Định dạng văn bản xuất ra
+        let resultText = "";
+        const fileNames = Object.keys(fileToLines);
 
-        // Cập nhật số lượng
-        document.getElementById('countFull').textContent = fullList.length;
-        document.getElementById('countUser').textContent = userList.length;
-        document.getElementById('countPass').textContent = passList.length;
-        document.getElementById('countCookie').textContent = cookieList.length;
+        if (fileNames.length > 0) {
+            fileNames.forEach(filename => {
+                const lines = fileToLines[filename];
+                resultText += `📁 [${filename}]\n`;
+                lines.forEach(accData => {
+                    resultText += `${accData}\n`;
+                });
+                resultText += `\n`;
+            });
+        } else {
+            resultText += "Không tìm thấy tài khoản nào khớp trong các file đã chọn.\n\n";
+        }
 
-        // Báo các acc không tìm thấy
         const missing = targetAccounts.filter(acc => !foundUserSet.has(acc.toLowerCase()));
         if (missing.length > 0) {
-            missingContainer.innerHTML = `
-                <div class="missing-box">
-                    <b>❌ Không tìm thấy trong file nào (${missing.length} acc):</b><br>
-                    ${missing.join(', ')}
-                </div>
-            `;
-        } else {
-            missingContainer.innerHTML = '';
+            resultText += `❌ KHÔNG TÌM THẤY (${missing.length} acc):\n`;
+            missing.forEach(acc => {
+                resultText += `${acc}\n`;
+            });
         }
 
+        outputEl.value = resultText.trim();
         resultCard.style.display = 'block';
         resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function copyBox(textareaId) {
-        const el = document.getElementById(textareaId);
-        if (!el.value.trim()) {
-            alert("Ô này không có dữ liệu để copy!");
+    function copyAllResult() {
+        const text = document.getElementById("outputResult").value;
+        if (!text.trim()) {
+            alert("Chưa có kết quả để copy!");
             return;
         }
-        navigator.clipboard.writeText(el.value).then(() => {
-            showToast("Đã copy toàn bộ nội dung ô!");
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("Đã copy toàn bộ kết quả!");
         });
     }
 
