@@ -27,7 +27,7 @@
             display: flex;
             justify-content: center;
         }
-        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
+        .container { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 20px; }
         .header { text-align: center; }
         .header h1 { font-size: 24px; color: var(--accent); }
         .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
@@ -41,7 +41,7 @@
         .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text); }
         textarea {
             width: 100%;
-            height: 130px;
+            height: 120px;
             background: var(--card-inner);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -123,30 +123,111 @@
         }
         .btn-run:hover { background: var(--accent-hover); }
 
-        .result-header {
+        /* Danh sách tài khoản chọn lọc */
+        .selection-panel {
+            margin-bottom: 20px;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .global-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 12px;
             margin-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
         }
-        .btn-copy-main {
+        .file-block {
+            margin-bottom: 14px;
+            background: #131c2e;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+        }
+        .file-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .acc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-left: 24px;
+        }
+        .acc-item-label {
+            font-family: monospace;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #cbd5e1;
+            word-break: break-all;
+        }
+        .acc-item-label:hover { color: #fff; }
+
+        /* 2 Khung kết quả xuất */
+        .output-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .output-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .output-box {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .box-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+        .btn-copy-fast {
             background: var(--btn-copy);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.15s;
         }
-        .btn-copy-main:hover { background: var(--btn-copy-hover); }
+        .btn-copy-fast:hover { background: var(--btn-copy-hover); }
 
-        #outputResult {
-            height: 320px;
-            font-size: 13px;
-            line-height: 1.5;
+        .output-box textarea {
+            height: 250px;
             color: #38df8b;
+        }
+
+        .missing-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px dashed var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fca5a5;
+            font-family: monospace;
+            margin-top: 14px;
         }
 
         #toast {
@@ -180,16 +261,16 @@
 <div class="container">
     <div class="header">
         <h1>Account Data Fast Finder</h1>
-        <p>Lọc và gom toàn bộ File + TK + MK + Cookie vào 1 khung duy nhất</p>
+        <p>Lọc, tùy chọn tài khoản và trích xuất qua 2 khung riêng biệt</p>
     </div>
 
-    <!-- Bước 1 -->
+    <!-- Bước 1: Nhập danh sách acc -->
     <div class="card">
         <h2>1. Nhập danh sách acc cần tìm</h2>
         <textarea id="findInput" placeholder="clone1&#10;clone2:pass:cookie&#10;clone3/mật khẩu"></textarea>
     </div>
 
-    <!-- Bước 2 -->
+    <!-- Bước 2: Nạp file -->
     <div class="card">
         <h2>2. Nạp các file TXT cần quét</h2>
         <div class="drop-zone" id="dropZone">
@@ -209,20 +290,52 @@
 
     <button class="btn-run" onclick="processSearch()">🚀 LỌC DỮ LIỆU</button>
 
-    <!-- Bước 3 -->
+    <!-- Bước 3: Khu vực chọn lọc & 2 Khung kết quả -->
     <div class="card" id="resultCard" style="display: none;">
-        <div class="result-header">
-            <h2>3. Kết quả tổng hợp</h2>
-            <button class="btn-copy-main" onclick="copyAllResult()">⚡ SAO CHÉP TOÀN BỘ (1-CLICK)</button>
+        <h2>3. Tùy chọn tài khoản xuất kết quả</h2>
+        
+        <!-- Bảng tích chọn chi tiết -->
+        <div class="selection-panel">
+            <div class="global-bar">
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="chkAllGlobal" checked onchange="toggleAllGlobal(this.checked)">
+                    <b>Chọn tất cả acc lọc ra (<span id="selectedCount">0</span>/<span id="totalCount">0</span> acc)</b>
+                </label>
+            </div>
+            <div id="fileTreeContainer"></div>
         </div>
-        <textarea id="outputResult" readonly placeholder="Kết quả hiển thị tại đây..."></textarea>
+
+        <!-- 2 Khung sao chép riêng biệt -->
+        <div class="output-grid">
+            <!-- Khung 1: Kèm tên File -->
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title">📁 KHUNG 1: KÈM TÊN FILE</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outWithFile')">⚡ COPY KHUNG 1</button>
+                </div>
+                <textarea id="outWithFile" readonly placeholder="📁 [file.txt]&#10;clone1:pass:cookie..."></textarea>
+            </div>
+
+            <!-- Khung 2: Chỉ lấy Data TK:MK:CK -->
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title">📄 KHUNG 2: CHỈ CÓ DATA (TK:MK:CK)</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outOnlyData')">⚡ COPY KHUNG 2</button>
+                </div>
+                <textarea id="outOnlyData" readonly placeholder="clone1:pass:cookie&#10;clone2:pass:cookie..."></textarea>
+            </div>
+        </div>
+
+        <div id="missingContainer"></div>
     </div>
 </div>
 
-<div id="toast">Đã copy toàn bộ kết quả!</div>
+<div id="toast">Đã sao chép!</div>
 
 <script>
     const fileMap = new Map();
+    let accountDataList = []; // Danh sách toàn bộ acc tìm thấy
+
     const dropZone = document.getElementById('dropZone');
     const filesInput = document.getElementById('filesInput');
     const fileCountText = document.getElementById('fileCountText');
@@ -289,7 +402,8 @@
     async function processSearch() {
         const rawInput = document.getElementById("findInput").value;
         const resultCard = document.getElementById("resultCard");
-        const outputEl = document.getElementById("outputResult");
+        const fileTreeContainer = document.getElementById("fileTreeContainer");
+        const missingContainer = document.getElementById("missingContainer");
 
         if (!rawInput.trim()) {
             alert("Vui lòng dán danh sách account cần tìm!");
@@ -306,10 +420,12 @@
                 .filter(Boolean)
         )];
 
-        const fileToLines = {};
+        accountDataList = [];
         const foundUserSet = new Set();
+        const fileGroups = {};
+        let accCounter = 0;
 
-        // Quét dữ liệu từng file
+        // Quét từng file
         for (const [filename, file] of fileMap.entries()) {
             const text = await file.text();
             const lines = text.split(/\r?\n/);
@@ -323,51 +439,147 @@
 
                 const match = targetAccounts.find(t => t.toLowerCase() === lineUser.toLowerCase());
                 if (match) {
-                    if (!fileToLines[filename]) fileToLines[filename] = [];
-                    fileToLines[filename].push(trimmedLine);
+                    const accObj = {
+                        id: `acc_${accCounter++}`,
+                        filename: filename,
+                        user: lineUser,
+                        fullData: trimmedLine,
+                        selected: true
+                    };
+                    accountDataList.push(accObj);
                     foundUserSet.add(match.toLowerCase());
+
+                    if (!fileGroups[filename]) fileGroups[filename] = [];
+                    fileGroups[filename].push(accObj);
                 }
             });
         }
 
-        // Định dạng văn bản xuất ra
-        let resultText = "";
-        const fileNames = Object.keys(fileToLines);
-
-        if (fileNames.length > 0) {
-            fileNames.forEach(filename => {
-                const lines = fileToLines[filename];
-                resultText += `📁 [${filename}]\n`;
-                lines.forEach(accData => {
-                    resultText += `${accData}\n`;
-                });
-                resultText += `\n`;
-            });
+        // Tạo giao diện cây chọn lọc
+        fileTreeContainer.innerHTML = '';
+        if (accountDataList.length === 0) {
+            fileTreeContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Không tìm thấy tài khoản nào khớp trong các file.</div>';
         } else {
-            resultText += "Không tìm thấy tài khoản nào khớp trong các file đã chọn.\n\n";
+            for (const [filename, accList] of Object.entries(fileGroups)) {
+                const block = document.createElement('div');
+                block.className = 'file-block';
+
+                const fileHeaderId = `file_chk_${filename.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                
+                let accsHtml = '';
+                accList.forEach(acc => {
+                    accsHtml += `
+                        <label class="acc-item-label">
+                            <input type="checkbox" id="${acc.id}" class="item-chk chk-group-${fileHeaderId}" checked onchange="toggleItem('${acc.id}', this.checked, '${fileHeaderId}')">
+                            <span>${escapeHtml(acc.fullData)}</span>
+                        </label>
+                    `;
+                });
+
+                block.innerHTML = `
+                    <label class="file-title">
+                        <input type="checkbox" id="${fileHeaderId}" checked onchange="toggleFileGroup('${fileHeaderId}', this.checked)">
+                        📁 [${escapeHtml(filename)}] (${accList.length} acc)
+                    </label>
+                    <div class="acc-list">${accsHtml}</div>
+                `;
+                fileTreeContainer.appendChild(block);
+            }
         }
 
+        // Báo các acc không tìm thấy
         const missing = targetAccounts.filter(acc => !foundUserSet.has(acc.toLowerCase()));
         if (missing.length > 0) {
-            resultText += `❌ KHÔNG TÌM THẤY (${missing.length} acc):\n`;
-            missing.forEach(acc => {
-                resultText += `${acc}\n`;
-            });
+            missingContainer.innerHTML = `
+                <div class="missing-box">
+                    <b>❌ Không tìm thấy trong file nào (${missing.length} acc):</b><br>
+                    ${missing.join(', ')}
+                </div>
+            `;
+        } else {
+            missingContainer.innerHTML = '';
         }
 
-        outputEl.value = resultText.trim();
         resultCard.style.display = 'block';
+        updateOutputs();
         resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function copyAllResult() {
-        const text = document.getElementById("outputResult").value;
-        if (!text.trim()) {
-            alert("Chưa có kết quả để copy!");
+    // Toggle 1 tài khoản đơn lẻ
+    function toggleItem(id, isChecked, fileHeaderId) {
+        const item = accountDataList.find(a => a.id === id);
+        if (item) item.selected = isChecked;
+
+        // Cập nhật trạng thái checkbox cha của file
+        const groupCheckboxes = document.querySelectorAll(`.chk-group-${fileHeaderId}`);
+        const allGroupChecked = Array.from(groupCheckboxes).every(cb => cb.checked);
+        const parentFileChk = document.getElementById(fileHeaderId);
+        if (parentFileChk) parentFileChk.checked = allGroupChecked;
+
+        updateOutputs();
+    }
+
+    // Toggle tất cả tài khoản trong 1 file cụ thể
+    function toggleFileGroup(fileHeaderId, isChecked) {
+        const groupCheckboxes = document.querySelectorAll(`.chk-group-${fileHeaderId}`);
+        groupCheckboxes.forEach(cb => {
+            cb.checked = isChecked;
+            const item = accountDataList.find(a => a.id === cb.id);
+            if (item) item.selected = isChecked;
+        });
+        updateOutputs();
+    }
+
+    // Toggle toàn bộ tất cả acc đã lọc ra
+    function toggleAllGlobal(isChecked) {
+        accountDataList.forEach(acc => {
+            acc.selected = isChecked;
+        });
+        document.querySelectorAll('.selection-panel input[type="checkbox"]').forEach(cb => {
+            cb.checked = isChecked;
+        });
+        updateOutputs();
+    }
+
+    // Đồng bộ và render lại nội dung vào 2 khung Textarea
+    function updateOutputs() {
+        const selectedAccs = accountDataList.filter(a => a.selected);
+        
+        document.getElementById('selectedCount').textContent = selectedAccs.length;
+        document.getElementById('totalCount').textContent = accountDataList.length;
+        document.getElementById('chkAllGlobal').checked = selectedAccs.length === accountDataList.length && accountDataList.length > 0;
+
+        // Khung 1: Gom theo file
+        const grouped = {};
+        selectedAccs.forEach(acc => {
+            if (!grouped[acc.filename]) grouped[acc.filename] = [];
+            grouped[acc.filename].push(acc.fullData);
+        });
+
+        let textWithFile = "";
+        for (const [filename, lines] of Object.entries(grouped)) {
+            textWithFile += `📁 [${filename}]\n`;
+            lines.forEach(line => {
+                textWithFile += `${line}\n`;
+            });
+            textWithFile += `\n`;
+        }
+
+        // Khung 2: Chỉ lấy data thuần
+        let textOnlyData = selectedAccs.map(a => a.fullData).join('\n');
+
+        document.getElementById('outWithFile').value = textWithFile.trim();
+        document.getElementById('outOnlyData').value = textOnlyData.trim();
+    }
+
+    function copyBox(textareaId) {
+        const el = document.getElementById(textareaId);
+        if (!el.value.trim()) {
+            alert("Khung này chưa có dữ liệu hoặc bạn chưa tick chọn acc nào!");
             return;
         }
-        navigator.clipboard.writeText(text).then(() => {
-            showToast("Đã copy toàn bộ kết quả!");
+        navigator.clipboard.writeText(el.value).then(() => {
+            showToast("Đã sao chép nội dung khung!");
         });
     }
 
@@ -376,6 +588,10 @@
         toast.textContent = msg;
         toast.className = "show";
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1500);
+    }
+
+    function escapeHtml(text) {
+        return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : '';
     }
 </script>
 </body>
