@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Lọc & Tách Account TXT</title>
+    <title>Tool Lọc & Trích Xuất Dữ Liệu Acc TXT</title>
     <style>
         :root {
             --bg: #0b1120;
@@ -17,7 +17,6 @@
             --btn-copy: #10b981;
             --btn-copy-hover: #059669;
             --danger: #ef4444;
-            --warning: #f59e0b;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -28,8 +27,8 @@
             display: flex;
             justify-content: center;
         }
-        .container { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 20px; }
-        .header { text-align: center; margin-bottom: 8px; }
+        .container { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 20px; }
+        .header { text-align: center; margin-bottom: 4px; }
         .header h1 { font-size: 24px; color: var(--accent); }
         .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
         
@@ -112,8 +111,8 @@
 
         .btn-run {
             width: 100%;
-            padding: 12px;
-            font-size: 15px;
+            padding: 14px;
+            font-size: 16px;
             font-weight: 600;
             background: var(--accent);
             color: #0f172a;
@@ -124,101 +123,42 @@
         }
         .btn-run:hover { background: var(--accent-hover); }
 
-        /* Toolbar thao tác hàng loạt */
-        .batch-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            background: var(--card-inner);
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            margin-bottom: 16px;
+        /* Vùng kết quả dạng ô Box */
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
-        .batch-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-batch {
-            background: #334155;
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 500;
+        @media (min-width: 768px) {
+            .result-grid { grid-template-columns: 1fr 1fr; }
         }
-        .btn-batch:hover { background: #475569; }
-        .btn-batch.primary { background: var(--btn-copy); border-color: var(--btn-copy); }
-        .btn-batch.primary:hover { background: var(--btn-copy-hover); }
-
-        /* Khung nhóm file & tài khoản */
-        .file-group { margin-bottom: 20px; }
-        .file-header {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .acc-item {
+        .box-result {
             background: var(--card-inner);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
-            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        .acc-row-main {
+        .box-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .acc-info {
-            display: flex;
             align-items: center;
-            gap: 10px;
-            font-family: monospace;
-            font-size: 13px;
         }
-        .badge {
-            background: #334155;
-            color: #38bdf8;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-        }
-        .acc-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn-action {
-            background: #1e293b;
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
+        .box-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+        .btn-copy-fast {
+            background: var(--btn-copy);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.15s;
         }
-        .btn-action:hover { background: #334155; color: var(--accent); }
-        
-        .cookie-preview {
-            font-family: monospace;
-            font-size: 11px;
-            color: var(--text-muted);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px 10px;
-            border-radius: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .btn-copy-fast:hover { background: var(--btn-copy-hover); }
 
         .missing-box {
             background: rgba(239, 68, 68, 0.08);
@@ -228,13 +168,12 @@
             font-size: 13px;
             color: #fca5a5;
             font-family: monospace;
-            margin-top: 10px;
+            margin-top: 14px;
         }
 
-        /* Toast thông báo */
         #toast {
             visibility: hidden;
-            min-width: 220px;
+            min-width: 200px;
             background-color: var(--btn-copy);
             color: #fff;
             text-align: center;
@@ -262,17 +201,17 @@
 
 <div class="container">
     <div class="header">
-        <h1>Account Data Filter & Extractor</h1>
-        <p>Tự động tách TK / MK / Cookie và hỗ trợ sao chép linh hoạt</p>
+        <h1>Account Fast Extractor</h1>
+        <p>Lọc và xuất sẵn các khung văn bản để copy 1-click tức thì</p>
     </div>
 
-    <!-- Bước 1 -->
+    <!-- Bước 1: Nhập danh sách acc -->
     <div class="card">
         <h2>1. Nhập danh sách acc cần tìm</h2>
         <textarea id="findInput" placeholder="clone1&#10;clone2:pass:cookie&#10;clone3/mật khẩu"></textarea>
     </div>
 
-    <!-- Bước 2 -->
+    <!-- Bước 2: Nạp file -->
     <div class="card">
         <h2>2. Nạp các file TXT cần quét</h2>
         <div class="drop-zone" id="dropZone">
@@ -290,28 +229,59 @@
         <div class="file-chips" id="fileChips"></div>
     </div>
 
-    <button class="btn-run" onclick="processSearch()">🚀 Bắt Đầu Lọc</button>
+    <button class="btn-run" onclick="processSearch()">🚀 BẮT ĐẦU LỌC TẤT CẢ</button>
 
-    <!-- Bước 3 -->
+    <!-- Bước 3: Các ô dữ liệu xuất ra -->
     <div class="card" id="resultCard" style="display: none;">
-        <h2>3. Kết quả tìm kiếm</h2>
+        <h2>3. Kết quả dữ liệu (Bấm nút xanh để Copy)</h2>
         
-        <!-- Thanh công cụ hàng loạt -->
-        <div class="batch-toolbar">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
-                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
-                <b>Chọn tất cả (<span id="selectedCount">0</span> acc)</b>
-            </label>
-            <div class="batch-buttons">
-                <button class="btn-batch primary" onclick="copyBatch('full')">Copy Full (User:Pass:Cookie)</button>
-                <button class="btn-batch" onclick="copyBatch('user')">Copy All TK</button>
-                <button class="btn-batch" onclick="copyBatch('pass')">Copy All MK</button>
-                <button class="btn-batch" onclick="copyBatch('cookie')">Copy All Cookie</button>
+        <div class="result-grid">
+            <!-- Box 1: Full data -->
+            <div class="box-result" style="grid-column: 1 / -1;">
+                <div class="box-header">
+                    <span class="box-title">📋 FULL DỮ LIỆU GỐC (<span id="countFull">0</span> acc)</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outFull')">⚡ COPY TOÀN BỘ FULL</button>
+                </div>
+                <textarea id="outFull" readonly placeholder="User:Pass:Cookie..."></textarea>
+            </div>
+
+            <!-- Box 2: Chỉ lấy Cookie -->
+            <div class="box-result">
+                <div class="box-header">
+                    <span class="box-title">🍪 CHỈ LẤY COOKIE (<span id="countCookie">0</span> dòng)</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outCookie')">⚡ COPY ALL COOKIE</button>
+                </div>
+                <textarea id="outCookie" readonly placeholder="Danh sách Cookie..."></textarea>
+            </div>
+
+            <!-- Box 3: Vị trí File của Acc -->
+            <div class="box-result">
+                <div class="box-header">
+                    <span class="box-title">📂 VỊ TRÍ ACC THEO FILE</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outFileLoc')">⚡ COPY VỊ TRÍ FILE</button>
+                </div>
+                <textarea id="outFileLoc" readonly placeholder="file_name.txt có clone1..."></textarea>
+            </div>
+
+            <!-- Box 4: Chỉ lấy User -->
+            <div class="box-result">
+                <div class="box-header">
+                    <span class="box-title">👤 CHỈ LẤY TÊN USER (<span id="countUser">0</span> acc)</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outUser')">⚡ COPY ALL USER</button>
+                </div>
+                <textarea id="outUser" readonly placeholder="Danh sách Username..."></textarea>
+            </div>
+
+            <!-- Box 5: Chỉ lấy Pass -->
+            <div class="box-result">
+                <div class="box-header">
+                    <span class="box-title">🔑 CHỈ LẤY MẬT KHẨU (<span id="countPass">0</span> pass)</span>
+                    <button class="btn-copy-fast" onclick="copyBox('outPass')">⚡ COPY ALL PASS</button>
+                </div>
+                <textarea id="outPass" readonly placeholder="Danh sách Mật khẩu..."></textarea>
             </div>
         </div>
 
-        <!-- Vùng hiển thị chi tiết từng account -->
-        <div id="resultsContainer"></div>
         <div id="missingContainer"></div>
     </div>
 </div>
@@ -320,8 +290,6 @@
 
 <script>
     const fileMap = new Map();
-    let currentResults = []; // Lưu trữ các account đã tìm thấy
-
     const dropZone = document.getElementById('dropZone');
     const filesInput = document.getElementById('filesInput');
     const fileCountText = document.getElementById('fileCountText');
@@ -382,7 +350,6 @@
         line = line.trim();
         if (!line) return null;
         
-        // Nhận diện dấu phân cách chính (: hoặc | hoặc /)
         let delimiter = ':';
         if (line.includes(':')) delimiter = ':';
         else if (line.includes('|')) delimiter = '|';
@@ -392,7 +359,7 @@
         return {
             user: parts[0] ? parts[0].trim() : '',
             pass: parts[1] ? parts[1].trim() : '',
-            cookie: parts.slice(2).join(delimiter).trim(), // Cookie có thể chứa ký tự phân cách phụ
+            cookie: parts.slice(2).join(delimiter).trim(),
             full: line
         };
     }
@@ -400,7 +367,6 @@
     async function processSearch() {
         const rawInput = document.getElementById("findInput").value;
         const resultCard = document.getElementById("resultCard");
-        const container = document.getElementById("resultsContainer");
         const missingContainer = document.getElementById("missingContainer");
 
         if (!rawInput.trim()) {
@@ -412,7 +378,6 @@
             return;
         }
 
-        // Tách lấy danh sách tên tài khoản cần tìm
         const targetAccounts = [...new Set(
             rawInput.split("\n")
                 .map(line => {
@@ -422,142 +387,78 @@
                 .filter(Boolean)
         )];
 
-        currentResults = [];
+        const fullList = [];
+        const userList = [];
+        const passList = [];
+        const cookieList = [];
+        const fileLocLines = [];
         const foundUserSet = new Set();
-        const fileGroups = {};
 
         // Quét từng file
         for (const [filename, file] of fileMap.entries()) {
             const text = await file.text();
             const lines = text.split(/\r?\n/);
+            const currentFileAccs = [];
 
-            lines.forEach((line, idx) => {
+            lines.forEach(line => {
                 const parsed = parseAccountLine(line);
                 if (!parsed || !parsed.user) return;
 
                 const match = targetAccounts.find(t => t.toLowerCase() === parsed.user.toLowerCase());
                 if (match) {
-                    const accData = {
-                        id: `acc_${currentResults.length}`,
-                        filename: filename,
-                        user: parsed.user,
-                        pass: parsed.pass,
-                        cookie: parsed.cookie,
-                        full: parsed.full,
-                        selected: true // mặc định tích chọn sẵn
-                    };
-                    currentResults.push(accData);
+                    fullList.push(parsed.full);
+                    userList.push(parsed.user);
+                    if (parsed.pass) passList.push(parsed.pass);
+                    if (parsed.cookie) cookieList.push(parsed.cookie);
+                    
+                    currentFileAccs.push(parsed.user);
                     foundUserSet.add(match.toLowerCase());
-
-                    if (!fileGroups[filename]) fileGroups[filename] = [];
-                    fileGroups[filename].push(accData);
                 }
             });
-        }
 
-        // Hiển thị UI kết quả
-        resultCard.style.display = 'block';
-        container.innerHTML = '';
-        missingContainer.innerHTML = '';
-
-        if (currentResults.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-muted); font-size: 14px;">Không tìm thấy tài khoản nào khớp trong các file.</div>';
-        } else {
-            for (const [filename, accList] of Object.entries(fileGroups)) {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'file-group';
-                groupDiv.innerHTML = `<div class="file-header">📂 File: ${filename} (${accList.length} acc)</div>`;
-
-                accList.forEach(acc => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'acc-item';
-                    itemDiv.innerHTML = `
-                        <div class="acc-row-main">
-                            <div class="acc-info">
-                                <input type="checkbox" id="chk_${acc.id}" checked onchange="toggleItem('${acc.id}', this.checked)">
-                                <b>${escapeHtml(acc.user)}</b>
-                                ${acc.pass ? `<span class="badge">Pass: ${escapeHtml(acc.pass)}</span>` : ''}
-                            </div>
-                            <div class="acc-actions">
-                                <button class="btn-action" onclick="copyText('${escapeQuotes(acc.full)}', 'Đã copy Full')">Copy Full</button>
-                                <button class="btn-action" onclick="copyText('${escapeQuotes(acc.user)}', 'Đã copy User')">User</button>
-                                ${acc.pass ? `<button class="btn-action" onclick="copyText('${escapeQuotes(acc.pass)}', 'Đã copy Pass')">Pass</button>` : ''}
-                                ${acc.cookie ? `<button class="btn-action" onclick="copyText('${escapeQuotes(acc.cookie)}', 'Đã copy Cookie')">Cookie</button>` : ''}
-                            </div>
-                        </div>
-                        ${acc.cookie ? `<div class="cookie-preview" title="${escapeHtml(acc.cookie)}">Cookie: ${escapeHtml(acc.cookie)}</div>` : ''}
-                    `;
-                    groupDiv.appendChild(itemDiv);
-                });
-                container.appendChild(groupDiv);
+            if (currentFileAccs.length > 0) {
+                fileLocLines.push(`${filename} có ${currentFileAccs.join(', ')}`);
             }
         }
+
+        // Đổ dữ liệu vào các ô Textarea
+        document.getElementById('outFull').value = fullList.join('\n');
+        document.getElementById('outUser').value = userList.join('\n');
+        document.getElementById('outPass').value = passList.join('\n');
+        document.getElementById('outCookie').value = cookieList.join('\n');
+        document.getElementById('outFileLoc').value = fileLocLines.join('\n');
+
+        // Cập nhật số lượng
+        document.getElementById('countFull').textContent = fullList.length;
+        document.getElementById('countUser').textContent = userList.length;
+        document.getElementById('countPass').textContent = passList.length;
+        document.getElementById('countCookie').textContent = cookieList.length;
 
         // Báo các acc không tìm thấy
         const missing = targetAccounts.filter(acc => !foundUserSet.has(acc.toLowerCase()));
         if (missing.length > 0) {
             missingContainer.innerHTML = `
                 <div class="missing-box">
-                    <b>❌ Không tìm thấy (${missing.length} acc):</b><br>
-                    ${missing.map(m => `- ${escapeHtml(m)}`).join('<br>')}
+                    <b>❌ Không tìm thấy trong file nào (${missing.length} acc):</b><br>
+                    ${missing.join(', ')}
                 </div>
             `;
+        } else {
+            missingContainer.innerHTML = '';
         }
 
-        updateSelectedCount();
+        resultCard.style.display = 'block';
+        resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function toggleItem(id, isChecked) {
-        const item = currentResults.find(a => a.id === id);
-        if (item) item.selected = isChecked;
-        updateSelectedCount();
-    }
-
-    function toggleSelectAll(masterCheckbox) {
-        const checked = masterCheckbox.checked;
-        currentResults.forEach(acc => {
-            acc.selected = checked;
-            const chk = document.getElementById(`chk_${acc.id}`);
-            if (chk) chk.checked = checked;
-        });
-        updateSelectedCount();
-    }
-
-    function updateSelectedCount() {
-        const count = currentResults.filter(a => a.selected).length;
-        document.getElementById('selectedCount').textContent = count;
-        document.getElementById('selectAllCheckbox').checked = count === currentResults.length && currentResults.length > 0;
-    }
-
-    function copyBatch(type) {
-        const selected = currentResults.filter(a => a.selected);
-        if (selected.length === 0) {
-            alert("Vui lòng chọn ít nhất 1 tài khoản!");
+    function copyBox(textareaId) {
+        const el = document.getElementById(textareaId);
+        if (!el.value.trim()) {
+            alert("Ô này không có dữ liệu để copy!");
             return;
         }
-
-        let textList = [];
-        if (type === 'full') {
-            textList = selected.map(a => a.full);
-        } else if (type === 'user') {
-            textList = selected.map(a => a.user);
-        } else if (type === 'pass') {
-            textList = selected.map(a => a.pass).filter(Boolean);
-        } else if (type === 'cookie') {
-            textList = selected.map(a => a.cookie).filter(Boolean);
-        }
-
-        if (textList.length === 0) {
-            alert(`Không có dữ liệu ${type.toUpperCase()} nào trong các acc đã chọn!`);
-            return;
-        }
-
-        copyText(textList.join('\n'), `Đã copy ${textList.length} dòng ${type.toUpperCase()}!`);
-    }
-
-    function copyText(text, message) {
-        navigator.clipboard.writeText(text).then(() => {
-            showToast(message || "Đã sao chép!");
+        navigator.clipboard.writeText(el.value).then(() => {
+            showToast("Đã copy toàn bộ nội dung ô!");
         });
     }
 
@@ -566,14 +467,6 @@
         toast.textContent = msg;
         toast.className = "show";
         setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1500);
-    }
-
-    function escapeHtml(text) {
-        return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : '';
-    }
-
-    function escapeQuotes(text) {
-        return text ? text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') : '';
     }
 </script>
 </body>
