@@ -19,6 +19,7 @@
             --btn-download: #8b5cf6;
             --btn-download-hover: #7c3aed;
             --danger: #ef4444;
+            --danger-hover: #dc2626;
             --warning: #f59e0b;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,6 +56,26 @@
         }
         .card h2 { font-size: 15px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
         
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-clear {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn-clear:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
         textarea {
             width: 100%;
             height: 180px;
@@ -114,8 +135,12 @@
             outline: none;
         }
 
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
         .btn-run {
-            width: 100%;
             padding: 14px;
             font-size: 16px;
             font-weight: 600;
@@ -127,6 +152,23 @@
             transition: 0.2s;
         }
         .btn-run:hover { background: var(--accent-hover); }
+
+        .btn-reset-all {
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-reset-all:hover {
+            background: var(--danger);
+            color: #fff;
+        }
 
         .stats-grid {
             display: grid;
@@ -230,7 +272,10 @@
         <div class="card">
             <h2>
                 <span>📁 NGUỒN A (File / List 1)</span>
-                <span id="labelA" style="font-size: 12px; color: var(--accent);"></span>
+                <div class="header-actions">
+                    <span id="labelA" style="font-size: 12px; color: var(--accent);"></span>
+                    <button class="btn-clear" onclick="clearSource('textA', 'labelA', 'fileInputA')">🗑 Xóa A</button>
+                </div>
             </h2>
             <div class="drop-zone" id="dropA">
                 <p>Kéo thả File 1 (.txt) vào đây</p>
@@ -246,7 +291,10 @@
         <div class="card">
             <h2>
                 <span>📁 NGUỒN B (File / List 2)</span>
-                <span id="labelB" style="font-size: 12px; color: var(--accent);"></span>
+                <div class="header-actions">
+                    <span id="labelB" style="font-size: 12px; color: var(--accent);"></span>
+                    <button class="btn-clear" onclick="clearSource('textB', 'labelB', 'fileInputB')">🗑 Xóa B</button>
+                </div>
             </h2>
             <div class="drop-zone" id="dropB">
                 <p>Kéo thả File 2 (.txt) vào đây</p>
@@ -275,7 +323,10 @@
         </div>
     </div>
 
-    <button class="btn-run" onclick="processCompare()">🚀 SO SÁNH & TÁCH ACC</button>
+    <div class="action-buttons">
+        <button class="btn-run" onclick="processCompare()">🚀 SO SÁNH & TÁCH ACC</button>
+        <button class="btn-reset-all" onclick="resetAll()">🔄 LÀM MỚI TẤT CẢ</button>
+    </div>
 
     <!-- Kết quả -->
     <div class="card" id="resultCard" style="display: none;">
@@ -393,6 +444,20 @@
         reader.readAsText(file);
     }
 
+    function clearSource(textId, labelId, fileInputId) {
+        document.getElementById(textId).value = '';
+        document.getElementById(labelId).textContent = '';
+        document.getElementById(fileInputId).value = '';
+        showToast('Đã xóa dữ liệu nguồn!');
+    }
+
+    function resetAll() {
+        clearSource('textA', 'labelA', 'fileInputA');
+        clearSource('textB', 'labelB', 'fileInputB');
+        document.getElementById('resultCard').style.display = 'none';
+        showToast('Đã làm mới toàn bộ!');
+    }
+
     function extractUsername(line) {
         let text = line.trim();
         if (!text) return null;
@@ -440,7 +505,6 @@
         const uniqueAList = [];
         const uniqueBList = [];
 
-        // Tìm trùng và riêng A
         mapA.forEach((valA, keyA) => {
             if (mapB.has(keyA)) {
                 matchedList.push(valA);
@@ -449,23 +513,19 @@
             }
         });
 
-        // Tìm riêng B
         mapB.forEach((valB, keyB) => {
             if (!mapA.has(keyB)) {
                 uniqueBList.push(valB);
             }
         });
 
-        // Gộp tất cả acc không trùng (Chỉ có ở A + Chỉ có ở B)
         const uniqueAllList = [...uniqueAList, ...uniqueBList];
 
-        // Render kết quả ra 4 Textarea
         renderToTextarea('outMatched', matchedList, formatMode);
         renderToTextarea('outUniqueAll', uniqueAllList, formatMode);
         renderToTextarea('outUniqueA', uniqueAList, formatMode);
         renderToTextarea('outUniqueB', uniqueBList, formatMode);
 
-        // Render Thống kê
         document.getElementById('statTotalA').textContent = mapA.size;
         document.getElementById('statTotalB').textContent = mapB.size;
         document.getElementById('statMatched').textContent = matchedList.length;
