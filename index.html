@@ -1,329 +1,614 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>So Sánh & Tách Trùng Acc 2 File</title>
-<style> :root {
---bg: #0b1120; --card: #1e293b; --card-inner: #0f172a; --border: #334155; --text: #f8fafc; --text-muted: #94a3b8; --accent: #38bdf8; --accent-hover: #0284c7; --btn-copy: #10b981; --btn-copy-hover: #059669; --btn-download: #8b5cf6; --btn-download-hover: #7c3aed; --danger: #ef4444; --danger-hover: #dc2626; --warning: #f59e0b;
-} * {
-box-sizing: border-box; margin: 0; padding: 0;
-} body {
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 24px; display: flex; justify-content: center;
-} .container {
-width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px;
-} .header {
-text-align: center;
-} .header h1 {
-font-size: 24px; color: var(--accent);
-} .header p {
-color: var(--text-muted); font-size: 14px; margin-top: 4px;
-} .grid-inputs {
-display: grid; grid-template-columns: 1fr; gap: 16px;
-} @media (min-width: 768px) {
-.grid-inputs {
-grid-template-columns: 1fr 1fr;
-}
-} .card {
-background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
-} .card h2 {
-font-size: 15px; color: var(--text); display: flex; justify-content: space-between; align-items: center;
-} .header-actions {
-display: flex; align-items: center; gap: 8px;
-} .btn-clear {
-background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 3px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: 0.15s;
-} .btn-clear:hover {
-background: var(--danger); color: #fff;
-} textarea {
-width: 100%; height: 180px; background: var(--card-inner); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 12px; font-family: monospace; font-size: 12.5px; resize: vertical;
-} textarea:focus {
-outline: none; border-color: var(--accent);
-} .drop-zone {
-border: 2px dashed var(--border); border-radius: 6px; padding: 12px; text-align: center; background: var(--card-inner); cursor: pointer; transition: 0.2s;
-} .drop-zone.dragover {
-border-color: var(--accent); background: rgba(56, 189, 248, 0.05);
-} .drop-zone p {
-font-size: 12px; color: var(--text-muted); margin-bottom: 6px;
-} .btn-select {
-background: #334155; color: var(--text); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; display: inline-block;
-} .btn-select:hover {
-background: #475569;
-} input[type="file"] {
-display: none;
-} .settings-bar {
-background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
-} .setting-item {
-display: flex; align-items: center; gap: 8px; font-size: 13px;
-} select, input[type="text"] {
-background: var(--card-inner); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 13px; outline: none;
-} .action-buttons {
-display: grid; grid-template-columns: 1fr auto; gap: 12px;
-} .btn-run {
-padding: 14px; font-size: 16px; font-weight: 600; background: var(--accent); color: #0f172a; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s;
-} .btn-run:hover {
-background: var(--accent-hover);
-} .btn-reset-all {
-padding: 14px 20px; font-size: 14px; font-weight: 600; background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; cursor: pointer; transition: 0.2s; white-space: nowrap;
-} .btn-reset-all:hover {
-background: var(--danger); color: #fff;
-} .stats-grid {
-display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px;
-} .stat-card {
-background: var(--card-inner); border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: center;
-} .stat-card .num {
-font-size: 20px; font-weight: 700; margin-top: 4px;
-} .c-matched {
-color: var(--warning);
-} .c-unique-all {
-color: #34d399;
-} .c-unique-a {
-color: var(--accent);
-} .c-unique-b {
-color: #a78bfa;
-} .output-grid {
-display: grid; grid-template-columns: 1fr; gap: 16px;
-} @media (min-width: 768px) {
-.output-grid {
-grid-template-columns: 1fr 1fr;
-}
-} .output-box {
-background: var(--card-inner); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
-} .box-header {
-display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
-} .box-title {
-font-size: 12px; font-weight: 700;
-} .box-actions {
-display: flex; gap: 6px;
-} .btn-action {
-color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s;
-} .btn-copy {
-background: var(--btn-copy);
-} .btn-copy:hover {
-background: var(--btn-copy-hover);
-} .btn-download {
-background: var(--btn-download);
-} .btn-download:hover {
-background: var(--btn-download-hover);
-} .output-box textarea {
-height: 230px; color: #38df8b;
-} #toast {
-visibility: hidden; min-width: 200px; background-color: var(--btn-copy); color: #fff; text-align: center; border-radius: 6px; padding: 10px 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 13px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-} #toast.show {
-visibility: visible; animation: fadeInOut 1.5s ease-in-out;
-} @keyframes fadeInOut {
-0% {
-opacity: 0; bottom: 20px;
-} 15% {
-opacity: 1; bottom: 30px;
-} 85% {
-opacity: 1; bottom: 30px;
-} 100% {
-opacity: 0; bottom: 20px;
-}
-} </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>So Sánh & Tách Trùng Acc 2 File</title>
+    <style>
+        :root {
+            --bg: #0b1120;
+            --card: #1e293b;
+            --card-inner: #0f172a;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --btn-copy: #10b981;
+            --btn-copy-hover: #059669;
+            --btn-download: #8b5cf6;
+            --btn-download-hover: #7c3aed;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+        .container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
+        .header { text-align: center; }
+        .header h1 { font-size: 24px; color: var(--accent); }
+        .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+        
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .grid-inputs { grid-template-columns: 1fr 1fr; }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .card h2 { font-size: 15px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-clear {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn-clear:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12.5px;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: var(--accent); }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            background: var(--card-inner);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .drop-zone.dragover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+        .drop-zone p { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .btn-select {
+            background: #334155;
+            color: var(--text);
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .btn-select:hover { background: #475569; }
+        input[type="file"] { display: none; }
+
+        .settings-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .setting-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        select, input[type="text"] {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
+        .btn-run {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-run:hover { background: var(--accent-hover); }
+
+        .btn-reset-all {
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-reset-all:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card .num { font-size: 20px; font-weight: 700; margin-top: 4px; }
+        .c-matched { color: var(--warning); }
+        .c-unique-all { color: #34d399; }
+        .c-unique-a { color: var(--accent); }
+        .c-unique-b { color: #a78bfa; }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .output-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .output-box {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .box-title { font-size: 12px; font-weight: 700; }
+        .box-actions { display: flex; gap: 6px; }
+
+        .btn-action {
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn-copy { background: var(--btn-copy); }
+        .btn-copy:hover { background: var(--btn-copy-hover); }
+        .btn-download { background: var(--btn-download); }
+        .btn-download:hover { background: var(--btn-download-hover); }
+        .output-box textarea { height: 230px; color: #38df8b; }
+
+        #toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: var(--btn-copy);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        #toast.show { visibility: visible; animation: fadeInOut 1.5s ease-in-out; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 20px; }
+            15% { opacity: 1; bottom: 30px; }
+            85% { opacity: 1; bottom: 30px; }
+            100% { opacity: 0; bottom: 20px; }
+        }
+    </style>
 </head>
 <body>
+
 <div class="container">
-<div class="header">
-<h1>Tool So Sánh & Tách Trùng Acc (2 Nguồn)</h1>
-<p>So khớp giữa File 1 và File 2 để tách riêng tài khoản trùng & không trùng</p>
+    <div class="header">
+        <h1>Tool So Sánh & Tách Trùng Acc 2 File</h1>
+        <p>So khớp giữa File 1 và File 2 để tách riêng tài khoản trùng & không trùng</p>
+    </div>
+
+    <div class="grid-inputs">
+        <div class="card">
+            <h2>
+                <span>📁 NGUỒN A (File / List 1)</span>
+                <div class="header-actions">
+                    <span id="labelA" style="font-size: 12px; color: var(--accent);"></span>
+                    <button class="btn-clear" onclick="clearSource('textA', 'labelA', 'fileInputA')">🗑 Xóa A</button>
+                </div>
+            </h2>
+            <div class="drop-zone" id="dropA">
+                <p>Kéo thả File 1 (.txt) vào đây</p>
+                <label class="btn-select">
+                    📂 Chọn File 1
+                    <input type="file" id="fileInputA">
+                </label>
+            </div>
+            <textarea id="textA" placeholder="Dán danh sách acc File 1 tại đây...&#10;acc1:mk1:_|WARNING:...&#10;acc2:mk2"></textarea>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span>📁 NGUỒN B (File / List 2)</span>
+                <div class="header-actions">
+                    <span id="labelB" style="font-size: 12px; color: var(--accent);"></span>
+                    <button class="btn-clear" onclick="clearSource('textB', 'labelB', 'fileInputB')">🗑 Xóa B</button>
+                </div>
+            </h2>
+            <div class="drop-zone" id="dropB">
+                <p>Kéo thả File 2 (.txt) vào đây</p>
+                <label class="btn-select">
+                    📂 Chọn File 2
+                    <input type="file" id="fileInputB">
+                </label>
+            </div>
+            <textarea id="textB" placeholder="Dán danh sách acc File 2 tại đây...&#10;acc1:mk1:_|WARNING:...&#10;acc3:mk3"></textarea>
+        </div>
+    </div>
+
+    <div class="settings-bar">
+        <div class="setting-item">
+            <label>Định dạng xuất:</label>
+            <select id="formatMode">
+                <option value="user_pass">🔑 Chỉ lấy TK:MK (acc1:mk1 - Bỏ Cookie)</option>
+                <option value="full_data">1. Toàn bộ dòng gốc (TK:MK:CK)</option>
+                <option value="quoted">2. Định dạng Python: "username",</option>
+                <option value="raw_user">3. Chỉ lấy Username trần</option>
+            </select>
+        </div>
+        <div class="setting-item">
+            <label>Tên file tải về:</label>
+            <input type="text" id="customFileName" value="acc_loc" placeholder="Nhập tên file...">
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn-run" onclick="processCompare()">🚀 SO SÁNH & TÁCH ACC</button>
+        <button class="btn-reset-all" onclick="resetAll()">🔄 LÀM MỚI TẤT CẢ</button>
+    </div>
+
+    <div class="card" id="resultCard" style="display: none;">
+        <h2>KẾT QUẢ PHÂN TÍCH</h2>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>Tổng Acc Nguồn A</div>
+                <div class="num" id="statTotalA">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Tổng Acc Nguồn B</div>
+                <div class="num" id="statTotalB">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Acc Bị Trùng (A ∩ B)</div>
+                <div class="num c-matched" id="statMatched">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Tổng Acc Không Trùng (A + B)</div>
+                <div class="num c-unique-all" id="statUniqueAll">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Chỉ có ở A</div>
+                <div class="num c-unique-a" id="statUniqueA">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Chỉ có ở B</div>
+                <div class="num c-unique-b" id="statUniqueB">0</div>
+            </div>
+        </div>
+
+        <div class="output-grid">
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title c-matched">⚠️ ACC TRÙNG (CẢ 2 NGUỒN ĐỀU CÓ)</span>
+                    <div class="box-actions">
+                        <button class="btn-action btn-copy" onclick="copyBox('outMatched')">📋 COPY</button>
+                        <button class="btn-action btn-download" onclick="downloadBox('outMatched', '_TRUNG')">💾 TẢI</button>
+                    </div>
+                </div>
+                <textarea id="outMatched" readonly></textarea>
+            </div>
+
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title c-unique-all">✨ TẤT CẢ ACC KHÔNG TRÙNG (A + B)</span>
+                    <div class="box-actions">
+                        <button class="btn-action btn-copy" onclick="copyBox('outUniqueAll')">📋 COPY</button>
+                        <button class="btn-action btn-download" onclick="downloadBox('outUniqueAll', '_TAT_CA_KHONG_TRUNG')">💾 TẢI</button>
+                    </div>
+                </div>
+                <textarea id="outUniqueAll" readonly></textarea>
+            </div>
+
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title c-unique-a">🔹 KHÔNG TRÙNG (CHỈ CÓ Ở A)</span>
+                    <div class="box-actions">
+                        <button class="btn-action btn-copy" onclick="copyBox('outUniqueA')">📋 COPY</button>
+                        <button class="btn-action btn-download" onclick="downloadBox('outUniqueA', '_CHI_CO_O_A')">💾 TẢI</button>
+                    </div>
+                </div>
+                <textarea id="outUniqueA" readonly></textarea>
+            </div>
+
+            <div class="output-box">
+                <div class="box-header">
+                    <span class="box-title c-unique-b">🔸 KHÔNG TRÙNG (CHỈ CÓ Ở B)</span>
+                    <div class="box-actions">
+                        <button class="btn-action btn-copy" onclick="copyBox('outUniqueB')">📋 COPY</button>
+                        <button class="btn-action btn-download" onclick="downloadBox('outUniqueB', '_CHI_CO_O_B')">💾 TẢI</button>
+                    </div>
+                </div>
+                <textarea id="outUniqueB" readonly></textarea>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- 2 Khung Dán / Nạp File -->
-<div class="grid-inputs">
-<!-- Nguồn A -->
-<div class="card">
-<h2> 📁 <span> NGUỒN A (File / List 1)</span>
-<div class="header-actions">
-<span id="labelA" style="font-size: 12px; color: var(--accent);">
-</span> A</button>
-<button class="btn-clear" 🗑 onclick="clearSource('textA', 'labelA', 'fileInputA')"> Xóa </div>
-</h2>
-<div class="drop-zone" id="dropA">
-<p>Kéo thả File 1 (.txt) vào đây</p> 📂 <label class="btn-select"> Chọn File 1 <input type="file" id="fileInputA">
-</label>
-</div>
-<textarea id="textA" placeholder="Dán danh sách acc File 1 tại đây... acc1:mk1:_|WARNING:... acc2:mk2">
-</textarea>
-</div>
-<!-- Nguồn B -->
-<div class="card">
-<h2> 📁 <span> NGUỒN B (File / List 2)</span>
-<div class="header-actions">
-<span id="labelB" style="font-size: 12px; color: var(--accent);">
-</span> B</button>
-<button class="btn-clear" 🗑 onclick="clearSource('textB', 'labelB', 'fileInputB')"> Xóa </div>
-</h2>
-<div class="drop-zone" id="dropB">
-<p>Kéo thả File 2 (.txt) vào đây</p> 📂 <label class="btn-select"> Chọn File 2 <input type="file" id="fileInputB">
-</label>
-</div>
-<textarea id="textB" placeholder="Dán danh sách acc File 2 tại đây... acc1:mk1:_|WARNING:... acc3:mk3">
-</textarea>
-</div>
-</div>
-<!-- Cài đặt xuất -->
-<div class="settings-bar">
-<div class="setting-item">
-<label>Định dạng xuất:</label>
-<select id="formatMode">
-<option value="user_pass"> Bỏ Cookie)</option> 🔑 Chỉ lấy TK:MK (acc1:mk1 - <option value="full_data">1. Toàn bộ dòng gốc (TK:MK:CK)</option>
-<option value="quoted">2. Định dạng Python: "username",</option>
-<option value="raw_user">3. Chỉ lấy Username trần</option>
-</select>
-</div>
-<div class="setting-item">
-<label>Tên file tải về:</label>
-<input type="text" id="customFileName" value="acc_loc" placeholder="Nhập tên file...">
-</div>
-</div>
-<div class="action-buttons">
-<button class="btn-run" onclick="processCompare()"> 🚀 SO SÁNH & TÁCH ACC</button>
-<button class="btn-reset-all" onclick="resetAll()"> TẤT CẢ</button> 🔄 LÀM MỚI </div>
-<!-- Kết quả -->
-<div class="card" id="resultCard" style="display: none;">
-<h2>KẾT QUẢ PHÂN TÍCH</h2>
-<div class="stats-grid">
-<div class="stat-card">
-<div>Tổng Acc Nguồn A</div>
-<div class="num" id="statTotalA">0</div>
-</div>
-<div class="stat-card">
-<div>Tổng Acc Nguồn B</div>
-<div class="num" id="statTotalB">0</div>
-</div>
-<div class="stat-card">
-<div>Acc Bị Trùng (A ∩ B)</div>
-<div class="num c-matched" id="statMatched">0</div>
-</div>
-<div class="stat-card">
-<div>Tổng Acc Không Trùng (A + B)</div>
-<div class="num c-unique-all" id="statUniqueAll">0</div>
-</div>
-<div class="stat-card">
-<div>Chỉ có ở A</div>
-<div class="num c-unique-a" id="statUniqueA">0</div>
-</div>
-<div class="stat-card">
-<div>Chỉ có ở B</div>
-<div class="num c-unique-b" id="statUniqueB">0</div>
-</div>
-</div>
-<div class="output-grid">
-<!-- Box 1: Acc Trùng -->
-<div class="output-box">
-<div class="box-header">
-<span class="box-title c-matched"> 2 NGUỒN ĐỀU CÓ)</span> ⚠️ ACC TRÙNG (CẢ <div class="box-actions"> onclick="copyBox('outMatched')">📋 <button class="btn-action btn-copy" COPY</button> onclick="downloadBox('outMatched', '_TRUNG')"> 💾 <button class="btn-action btn-download" </div> TẢI</button>
-</div>
-<textarea id="outMatched" readonly>
-</textarea>
-</div>
-<!-- Box 2: Tổng acc Không Trùng (Gộp A và B) -->
-<div class="output-box">
-<div class="box-header">
-<span class="box-title c-unique-all"> KHÔNG TRÙNG (A + B)</span> ✨ TẤT CẢ ACC <div class="box-actions"> onclick="copyBox('outUniqueAll')">📋 <button class="btn-action btn-copy" COPY</button> TẢI</button>
-<button class="btn-action btn-download" onclick="downloadBox('outUniqueAll', '_TAT_CA_KHONG_TRUNG')"> 💾 </div>
-</div>
-<textarea id="outUniqueAll" readonly>
-</textarea>
-</div>
-<!-- Box 3: Chỉ có ở A -->
-<div class="output-box">
-<div class="box-header"> (CHỈ CÓ Ở A)</span>
-<span class="box-title c-unique-a">🔹 KHÔNG TRÙNG <div class="box-actions">
-<button class="btn-action btn-copy" onclick="copyBox('outUniqueA')">📋 COPY</button> onclick="downloadBox('outUniqueA', '_CHI_CO_O_A')">💾 <button class="btn-action btn-download" </div> TẢI</button>
-</div>
-<textarea id="outUniqueA" readonly>
-</textarea>
-</div>
-<!-- Box 4: Chỉ có ở B -->
-<div class="output-box">
-<div class="box-header"> (CHỈ CÓ Ở B)</span> 🔸 <span class="box-title c-unique-b"> KHÔNG TRÙNG <div class="box-actions"> onclick="copyBox('outUniqueB')">📋 <button class="btn-action btn-copy" COPY</button> onclick="downloadBox('outUniqueB', '_CHI_CO_O_B')">💾 <button class="btn-action btn-download" </div> TẢI</button>
-</div>
-<textarea id="outUniqueB" readonly>
-</textarea>
-</div>
-</div>
-</div>
-</div>
+
 <div id="toast">Thông báo</div>
-<script> setupUpload('dropA', 'fileInputA', 'textA', 'labelA'); setupUpload('dropB', 'fileInputB', 'textB', 'labelB'); function setupUpload(dropId, inputId, textId, labelId) {
-const drop = document.getElementById(dropId); const input = document.getElementById(inputId); const textarea = document.getElementById(textId); const label = document.getElementById(labelId); ['dragenter', 'dragover'].forEach(n => drop.addEventListener(n, (e) => {
-e.preventDefault(); drop.classList.add('dragover');
-})); ['dragleave', 'drop'].forEach(n => drop.addEventListener(n, (e) => {
-e.preventDefault(); drop.classList.remove('dragover');
-})); drop.addEventListener('drop', (e) => {
-if (e.dataTransfer.files.length > 0) readFile(e.dataTransfer.files[0], textarea, label);
-}); input.addEventListener('change', (e) => {
-if (e.target.files.length > 0) readFile(e.target.files[0], textarea, label); input.value = '';
-});
-} function readFile(file, textarea, label) {
-const reader = new FileReader(); reader.onload = (e) => {
-textarea.value = e.target.result; label.textContent = `[File: ${file.name}]`;
-}; reader.readAsText(file);
-} function clearSource(textId, labelId, fileInputId) {
-document.getElementById(textId).value = ''; document.getElementById(labelId).textContent = ''; document.getElementById(fileInputId).value = ''; showToast('Đã xóa dữ liệu nguồn!');
-} function resetAll() {
-clearSource('textA', 'labelA', 'fileInputA'); clearSource('textB', 'labelB', 'fileInputB'); document.getElementById('resultCard').style.display = 'none'; showToast('Đã làm mới toàn bộ!');
-} function extractUsername(line) {
-let text = line.trim(); if (!text) return null; text = text.replace(/^["']|["'],?$/g, ''); let pColon = text.indexOf(':'); let pSlash = text.indexOf('/'); let cutPos = -1; if (pColon !== -1 && pSlash !== -1) cutPos = Math.min(pColon, pSlash); else if (pColon !== -1) cutPos = pColon; else if (pSlash !== -1) cutPos = pSlash; if (cutPos !== -1) return text.substring(0, cutPos).trim(); return text.trim();
-} // Tách riêng dạng tài khoản:mật khẩu function extractUserPass(line) {
-let text = line.trim(); if (!text) return ''; text = text.replace(/^["']|["'],?$/g, ''); // Ưu tiên cắt bỏ đoạn cookie bắt đầu từ :_|WARNING const warnIndex = text.indexOf(':_|WARNING'); if (warnIndex !== -1) {
-return text.substring(0, warnIndex).trim();
-} // Nếu định dạng dùng dấu hai chấm phân tách thông thường (acc:pass:cookie...) const parts = text.split(':'); if (parts.length >= 2) {
-return `${parts[0].trim()}:${parts[1].trim()}`;
-} // Nếu là dạng acc/pass const slashParts = text.split('/'); if (slashParts.length >= 2) {
-return `${slashParts[0].trim()}:${slashParts[1].trim()}`;
-} return text;
-} function parseInput(rawText) {
-const map = new Map(); rawText.split(/\r?\n/).forEach(line => {
-const trimmed = line.trim(); if (!trimmed) return; const u = extractUsername(trimmed); if (u && !map.has(u.toLowerCase())) {
-map.set(u.toLowerCase(), {
-user: u, fullData: trimmed
-});
-}
-}); return map;
-} function processCompare() {
-const rawA = document.getElementById('textA').value; const rawB = document.getElementById('textB').value; const formatMode = document.getElementById('formatMode').value; if (!rawA.trim() && !rawB.trim()) {
-alert('Vui lòng dán hoặc nạp file vào ít nhất 1 nguồn để kiểm tra!'); return;
-} const mapA = parseInput(rawA); const mapB = parseInput(rawB); const matchedList = []; const uniqueAList = []; const uniqueBList = []; mapA.forEach((valA, keyA) => {
-if (mapB.has(keyA)) {
-matchedList.push(valA);
-} else {
-uniqueAList.push(valA);
-}
-}); mapB.forEach((valB, keyB) => {
-if (!mapA.has(keyB)) {
-uniqueBList.push(valB);
-}
-}); const uniqueAllList = [...uniqueAList, ...uniqueBList]; renderToTextarea('outMatched', matchedList, formatMode); renderToTextarea('outUniqueAll', uniqueAllList, formatMode); renderToTextarea('outUniqueA', uniqueAList, formatMode); renderToTextarea('outUniqueB', uniqueBList, formatMode); document.getElementById('statTotalA').textContent = mapA.size; document.getElementById('statTotalB').textContent = mapB.size; document.getElementById('statMatched').textContent = matchedList.length; document.getElementById('statUniqueAll').textContent = uniqueAllList.length; document.getElementById('statUniqueA').textContent = uniqueAList.length; document.getElementById('statUniqueB').textContent = uniqueBList.length; const resultCard = document.getElementById('resultCard'); resultCard.style.display = 'block'; resultCard.scrollIntoView({
-behavior: 'smooth'
-});
-} function renderToTextarea(elemId, list, formatMode) {
-let text = ""; if (formatMode === 'user_pass') {
-text = list.map(i => extractUserPass(i.fullData)).join('\n');
-} else if (formatMode === 'quoted') {
-text = list.map(i => `"${i.user}",`).join('\n');
-} else if (formatMode === 'raw_user') {
-text = list.map(i => i.user).join('\n');
-} else {
-text = list.map(i => i.fullData).join('\n');
-} document.getElementById(elemId).value = text;
-} function copyBox(id) {
-const el = document.getElementById(id); if (!el.value.trim()) {
-alert("Khung này không có tài khoản nào!"); return;
-} navigator.clipboard.writeText(el.value).then(() => {
-showToast("Đã sao chép vào bộ nhớ tạm!");
-});
-} function downloadBox(id, suffix = "") {
-const el = document.getElementById(id); const content = el.value.trim(); if (!content) {
-alert("Không có dữ liệu để tải về!"); return;
-} let baseName = document.getElementById('customFileName').value.trim() || 'acc_loc'; baseName = baseName.replace(/\.txt$/i, ''); const fullFileName = `${baseName}${suffix}.txt`; const blob = new Blob([content], {
-type: 'text/plain;charset=utf-8'
-}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = fullFileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast(`Đã tải: ${fullFileName}`);
-} function showToast(msg) {
-const toast = document.getElementById("toast"); toast.textContent = msg; toast.className = "show"; setTimeout(() => {
-toast.className = toast.className.replace("show", "");
-}, 1500);
-} </script>
+
+<script>
+    setupUpload('dropA', 'fileInputA', 'textA', 'labelA');
+    setupUpload('dropB', 'fileInputB', 'textB', 'labelB');
+
+    function setupUpload(dropId, inputId, textId, labelId) {
+        const drop = document.getElementById(dropId);
+        const input = document.getElementById(inputId);
+        const textarea = document.getElementById(textId);
+        const label = document.getElementById(labelId);
+
+        ['dragenter', 'dragover'].forEach(n => drop.addEventListener(n, (e) => { e.preventDefault(); drop.classList.add('dragover'); }));
+        ['dragleave', 'drop'].forEach(n => drop.addEventListener(n, (e) => { e.preventDefault(); drop.classList.remove('dragover'); }));
+
+        drop.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length > 0) readFile(e.dataTransfer.files[0], textarea, label);
+        });
+        input.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) readFile(e.target.files[0], textarea, label);
+            input.value = '';
+        });
+    }
+
+    function readFile(file, textarea, label) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            textarea.value = e.target.result;
+            label.textContent = `[File: ${file.name}]`;
+        };
+        reader.readAsText(file);
+    }
+
+    function clearSource(textId, labelId, fileInputId) {
+        document.getElementById(textId).value = '';
+        document.getElementById(labelId).textContent = '';
+        document.getElementById(fileInputId).value = '';
+        showToast('Đã xóa dữ liệu nguồn!');
+    }
+
+    function resetAll() {
+        clearSource('textA', 'labelA', 'fileInputA');
+        clearSource('textB', 'labelB', 'fileInputB');
+        document.getElementById('resultCard').style.display = 'none';
+        showToast('Đã làm mới toàn bộ!');
+    }
+
+    function extractUsername(line) {
+        let text = line.trim();
+        if (!text) return null;
+        text = text.replace(/^["']|["'],?$/g, '');
+
+        let pColon = text.indexOf(':');
+        let pSlash = text.indexOf('/');
+        
+        let cutPos = -1;
+        if (pColon !== -1 && pSlash !== -1) cutPos = Math.min(pColon, pSlash);
+        else if (pColon !== -1) cutPos = pColon;
+        else if (pSlash !== -1) cutPos = pSlash;
+
+        if (cutPos !== -1) return text.substring(0, cutPos).trim();
+        return text.trim();
+    }
+
+    function extractUserPass(line) {
+        let text = line.trim();
+        if (!text) return '';
+        text = text.replace(/^["']|["'],?$/g, '');
+
+        const warnIndex = text.indexOf(':_|WARNING');
+        if (warnIndex !== -1) {
+            return text.substring(0, warnIndex).trim();
+        }
+
+        const parts = text.split(':');
+        if (parts.length >= 2) {
+            return `${parts[0].trim()}:${parts[1].trim()}`;
+        }
+
+        const slashParts = text.split('/');
+        if (slashParts.length >= 2) {
+            return `${slashParts[0].trim()}:${slashParts[1].trim()}`;
+        }
+
+        return text;
+    }
+
+    function parseInput(rawText) {
+        const map = new Map();
+        rawText.split(/\r?\n/).forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+            const u = extractUsername(trimmed);
+            if (u && !map.has(u.toLowerCase())) {
+                map.set(u.toLowerCase(), { user: u, fullData: trimmed });
+            }
+        });
+        return map;
+    }
+
+    function processCompare() {
+        const rawA = document.getElementById('textA').value;
+        const rawB = document.getElementById('textB').value;
+        const formatMode = document.getElementById('formatMode').value;
+
+        if (!rawA.trim() && !rawB.trim()) {
+            alert('Vui lòng dán hoặc nạp file vào ít nhất 1 nguồn để kiểm tra!');
+            return;
+        }
+
+        const mapA = parseInput(rawA);
+        const mapB = parseInput(rawB);
+
+        const matchedList = [];
+        const uniqueAList = [];
+        const uniqueBList = [];
+
+        mapA.forEach((valA, keyA) => {
+            if (mapB.has(keyA)) {
+                matchedList.push(valA);
+            } else {
+                uniqueAList.push(valA);
+            }
+        });
+
+        mapB.forEach((valB, keyB) => {
+            if (!mapA.has(keyB)) {
+                uniqueBList.push(valB);
+            }
+        });
+
+        const uniqueAllList = [...uniqueAList, ...uniqueBList];
+
+        renderToTextarea('outMatched', matchedList, formatMode);
+        renderToTextarea('outUniqueAll', uniqueAllList, formatMode);
+        renderToTextarea('outUniqueA', uniqueAList, formatMode);
+        renderToTextarea('outUniqueB', uniqueBList, formatMode);
+
+        document.getElementById('statTotalA').textContent = mapA.size;
+        document.getElementById('statTotalB').textContent = mapB.size;
+        document.getElementById('statMatched').textContent = matchedList.length;
+        document.getElementById('statUniqueAll').textContent = uniqueAllList.length;
+        document.getElementById('statUniqueA').textContent = uniqueAList.length;
+        document.getElementById('statUniqueB').textContent = uniqueBList.length;
+
+        const resultCard = document.getElementById('resultCard');
+        resultCard.style.display = 'block';
+        resultCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderToTextarea(elemId, list, formatMode) {
+        let text = "";
+        if (formatMode === 'user_pass') {
+            text = list.map(i => extractUserPass(i.fullData)).join('\n');
+        } else if (formatMode === 'quoted') {
+            text = list.map(i => `"${i.user}",`).join('\n');
+        } else if (formatMode === 'raw_user') {
+            text = list.map(i => i.user).join('\n');
+        } else {
+            text = list.map(i => i.fullData).join('\n');
+        }
+        document.getElementById(elemId).value = text;
+    }
+
+    function copyBox(id) {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            alert("Khung này không có tài khoản nào!");
+            return;
+        }
+        navigator.clipboard.writeText(el.value).then(() => {
+            showToast("Đã sao chép vào bộ nhớ tạm!");
+        });
+    }
+
+    function downloadBox(id, suffix = "") {
+        const el = document.getElementById(id);
+        const content = el.value.trim();
+        if (!content) {
+            alert("Không có dữ liệu để tải về!");
+            return;
+        }
+
+        let baseName = document.getElementById('customFileName').value.trim() || 'acc_loc';
+        baseName = baseName.replace(/\.txt$/i, '');
+        const fullFileName = `${baseName}${suffix}.txt`;
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fullFileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`Đã tải: ${fullFileName}`);
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1500);
+    }
+</script>
 </body>
 </html>
